@@ -16,13 +16,39 @@ export const createProducts =handleAsyncError( async (req, res, next) => {
 });
 //get all products
 export const getAllProducts = handleAsyncError (async (req, res, next) => {
+
+    const resultsPerPage = 3;
     //  console.log(req.query);
-    const apiFunctionality = new APIFunctionality(Product.find(), req.query).search();
+    const apiFunctionality = new APIFunctionality(Product.find(), req.query).search().filter();
+
+    // getting filtered query before pagination 
+    const filteredQuery = apiFunctionality.query.clone();
+    const productCount = await filteredQuery.countDocuments();
+
+    //calculate total page based on filter count 
+
+    const totalPages = Math.ceil(productCount / resultsPerPage);
+    const page = Number(req.query.page) || 1;
+
+    if(page > totalPages && productCount >0){
+        return next(new HandleError("Invalid page number", 400));
+    } 
     
+    // apply pagination 
+
+    apiFunctionality.pagination(resultsPerPage);
     const products = await apiFunctionality.query;
+    if(!products || products.length === 0){
+        return next(new HandleError("Product not found", 404));
+    }
+
     res.status(200).json({
         success: true,
-        products
+        products,
+        productCount,
+        resultsPerPage,      
+        totalPages,
+        currentPage: page
     });
 });
 
