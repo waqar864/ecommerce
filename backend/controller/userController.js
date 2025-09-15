@@ -1,6 +1,7 @@
 import handleAsyncError from "../middleware/handleAsyncError.js";
 import User from "../models/userModel.js";
 import HandleError from "../utils/handleError.js";
+import { sendToken } from "../utils/jwtToken.js";
 
 export const registerUser = handleAsyncError (async (req, res, next) => {
 
@@ -15,13 +16,8 @@ export const registerUser = handleAsyncError (async (req, res, next) => {
             url: "profile pic url"
         }
     });
-
-    const token = user.getJWTToken();
-    res.status(201).json({
-        success: true,
-        user,
-        token
-    });
+ 
+    sendToken(user,201,res);
     
 })
 
@@ -46,10 +42,18 @@ export const loginUser = handleAsyncError (async (req, res, next) => {
 
   
 
-    const token = user.getJWTToken();
-    res.status(200).json({
+   sendToken(user,200,res);
+})
+
+
+//logout
+
+export const logout = handleAsyncError (async (req, res, next) => {
+    res.status(200).cookie("token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true
+    }).json({
         success: true,
-        user,
-        token
+        message: "Successfully Logged Out"
     });
 })
