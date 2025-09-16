@@ -47,11 +47,12 @@ userSchema.pre("save", async function(next){
     // if(!this.isModified("password")){
     //     next();
     // }
-    this.password = await bcryptjs.hash(this.password, 10);
-    //1st - updating profile (name , email , image )
+     //1st - updating profile (name , email , image )
     if(!this.isModified("password")){
        return next();
     }
+    this.password = await bcryptjs.hash(this.password, 10);
+    next();
 
     //2nd - updating password
 });
@@ -65,7 +66,6 @@ userSchema.methods.getJWTToken = function(){
 userSchema.methods.verifyPassword = async function(userEnteredPassword){
     return await bcryptjs.compare(userEnteredPassword, this.password);
 }
-export default mongoose.model("User", userSchema);  
 
 //genrating token
 
@@ -75,3 +75,8 @@ userSchema.methods.genrateResetPasswordToken = function(){
     this.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // token expires in 15 minutes
     return resetToken;
 }
+
+
+
+export default mongoose.model("User", userSchema);  
+
