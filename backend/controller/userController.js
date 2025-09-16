@@ -175,3 +175,28 @@ export const updateProfile = handleAsyncError (async (req, res, next) => {
         user
     });
 })
+
+
+//Admin - Getting User information
+
+export const getUsersList = handleAsyncError (async (req, res, next) => {
+    const users = await User.find();
+    res.status(200).json({
+        success: true,
+        users
+    });
+})
+
+
+// admin - Get Single User
+
+export const getSingleUser = handleAsyncError (async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return next(new HandleError("User not found", 404));
+    }
+    res.status(200).json({
+        success: true,
+        user
+    });
+})
