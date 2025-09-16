@@ -200,3 +200,42 @@ export const getSingleUser = handleAsyncError (async (req, res, next) => {
         user
     });
 })
+
+//Admin Changing user Role of user 
+
+export const updateUserRole = handleAsyncError (async (req, res, next) => {
+    const {role} = req.body;
+    const newUserData = {
+        role
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+        new: true,
+        runValidators: true
+        
+    });
+    if (!user) {
+        return next(new HandleError("User not found", 404));
+    }
+    
+   
+    res.status(200).json({
+        success: true,
+        user,
+        message: "Role updated successfully"
+    });
+})
+
+//admin - del;ete user 
+
+export const deleteUser = handleAsyncError (async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return next(new HandleError("User not found", 404));
+    }
+   await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+        success: true,
+        
+        message: "User deleted successfully"
+    });
+})
